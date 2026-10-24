@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+images:
+  - name: docker.io/0root/0root-demo-app
+    newName: 984140674362.dkr.ecr.eu-central-1.amazonaws.com/0root-demo-app
+    newTag: latest

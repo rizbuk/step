@@ -1,0 +1,27 @@
+ 1.Створіть локално , який міститиме:
+
+
+
+тестовий Python backend сервер. Простий скрипт, що слухає певний порт і повертає статус 200 на запит /
+Dockerfile з усім необхідним для запуску цього скрипта;
+GitHub Action, який автоматично збирає Docker-образ і завантажує його до Docker Hub. Використай GitHub Secrets для зберігання облікових даних Docker Hub.
+2.Використайте Terraform для створення EKS-кластера імя 0root-demo
+
+
+
+одна node group з одним node;
+встановлений nginx ingress controller.
+3.Напишіть код Terraform, який встановить ArgoCD у EKS за допомогою helm chart або звичайних k8s manifest.
+
+
+
+ArgoCD повинен мати DNS-ім’я у домені: devops1.0root.com (замініть devops1 на номер вашої групи). Приклад: argocd.student1.devops1.0root.com де student1 — це назва вашого кластера.
+4.Напишіть Kubernetes manifests для розгортання вашого застосунку з пункту 1 у EKS:
+
+
+
+deployment, service, ingress;
+застосунок має бути доступний за DNS-ім’ям у домені: devops1.0root.com (замініть devops1 на номер вашої групи).
+Приклад: app.student1.devops1.0root.com 
+
+5.Напишіть застосунок ArgoCD, який буде доставляти код із пункту 4 до EKS і автоматично оновлювати його при кожному новому коміті.
