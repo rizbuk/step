@@ -118,6 +118,24 @@ ArgoCD Application `0root-demo-app` отслеживает Git-репозито�
 AWS CodeCommit-репозиторий `0root-demo`; ArgoCD читает его по HTTPS с отдельным read-only
 IAM-пользователем. Текущий код уже запушен в CodeCommit.
 
+Проверено на практике: коммит `c9bc268` (изменение `APP_VERSION` на `1.0.1`) был подхвачен
+ArgoCD автоматически, приложение переразвернулось и начало возвращать `1.0.1`.
+
+Обновление кода:
+
+```bash
+git add .
+git commit -m "update manifests"
+AWS_DEFAULT_REGION=eu-central-1 git push origin main
+```
+
+Локальный `git` уже настроен на CodeCommit (credential helper AWS CLI):
+
+```bash
+git remote -v
+# origin  https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/0root-demo
+```
+
 Чтобы переключить GitOps на GitHub:
 
 ```bash
