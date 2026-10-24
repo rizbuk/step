@@ -16,7 +16,7 @@ EKS-кластер `0root-demo` с одной managed node group (1 нода), i
 | ArgoCD | namespace `argocd`, `http://argocd.0root-demo.devops1.0root.com` |
 | Приложение | namespace `demo`, `http://app.0root-demo.devops1.0root.com` |
 | ArgoCD Application | `0root-demo-app` (auto-sync, prune, self-heal) |
-| GitOps-репозиторий | AWS CodeCommit `0root-demo` |
+| GitOps-репозиторий | GitHub `https://github.com/rizbuk/step.git` |
 
 Проверка:
 
@@ -37,9 +37,8 @@ kubectl -n argocd get applications
 │   ├── base/                    # deployment, service, ingress, namespace
 │   └── overlays/eks/            # Kustomize overlay с ECR-образом для live-кластера
 ├── argocd/
-│   ├── application.yaml         # ArgoCD Application (шаблон, рендерится Terraform)
-│   └── repository-secret.yaml.tpl
-└── terraform/                   # VPC, EKS, node group, ingress-nginx, ArgoCD, CodeCommit
+│   └── application.yaml         # ArgoCD Application (шаблон, рендерится Terraform)
+└── terraform/                   # VPC, EKS, node group, ingress-nginx, ArgoCD
 ```
 
 ## 1. Приложение и Docker Hub
@@ -72,8 +71,7 @@ Terraform создаёт:
 - EKS `0root-demo` и managed node group ровно с 1 нодой;
 - ingress-nginx (Helm) с AWS NLB;
 - ArgoCD (Helm) с Ingress;
-- CodeCommit-репозиторий и read-only IAM-пользователя для ArgoCD;
-- ArgoCD Application.
+- ArgoCD Application, который смотрит на GitHub-репозиторий.
 
 Основные outputs:
 
@@ -114,39 +112,31 @@ ArgoCD Application `0root-demo-app` отслеживает Git-репозито�
 и имеет `automated: { prune: true, selfHeal: true }`. Каждое изменение в Git автоматически
 применяется в кластер (опрос раз в 60 секунд, `timeout.reconciliation: 60s`).
 
-Поскольку GitHub-репозиторий и его credentials не были предоставлены, Terraform создаёт
-AWS CodeCommit-репозиторий `0root-demo`; ArgoCD читает его по HTTPS с отдельным read-only
-IAM-пользователем. Текущий код уже запушен в CodeCommit.
+Источник GitOps — GitHub-репозиторий `https://github.com/rizbuk/step.git` (ветка `main`).
+ArgoCD Application уже переключён на него; репозиторий публичный, поэтому ArgoCD не требует
+отдельных credentials. Токен GitHub использовался только для первоначального `git push`
+и не записан ни в репозиторий, ни в Terraform.
 
-Проверено на практике: коммит `c9bc268` (изменение `APP_VERSION` на `1.0.1`) был подхвачен
-ArgoCD автоматически, приложение переразвернулось и начало возвращать `1.0.1`.
+Проверено на практике: коммит с изменением `APP_VERSION` был подхвачен ArgoCD автоматически,
+приложение переразвернулось и начало возвращать новую версию.
 
 Обновление кода:
 
 ```bash
 git add .
 git commit -m "update manifests"
-AWS_DEFAULT_REGION=eu-central-1 git push origin main
+git push origin main
 ```
 
-Локальный `git` уже настроен на CodeCommit (credential helper AWS CLI):
+Локальный remote:
 
 ```bash
 git remote -v
-# origin  https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/0root-demo
+# origin  https://github.com/rizbuk/step.git
 ```
 
-Чтобы переключить GitOps на GitHub:
-
-```bash
-cd terraform
-terraform apply \
-  -var='gitops_repo_url=https://github.com/<ваш-логин>/0root-demo.git' \
-  -var='gitops_repo_path=k8s/overlays/eks'
-```
-
-Для мгновенного обновления вместо опроса добавьте webhook GitHub/GitLab на ArgoCD
-(`/api/webhook`) или настройте `argocd` webhook в настройках репозитория.
+Для мгновенного обновления вместо опроса добавьте webhook GitHub на ArgoCD
+(`/api/webhook`) или настройте webhook в настройках репозитория.
 
 ## DNS
 

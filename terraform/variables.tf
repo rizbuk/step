@@ -37,7 +37,7 @@ variable "app_hostname" {
 variable "gitops_repo_url" {
   description = "Git repository containing the Kubernetes manifests."
   type        = string
-  default     = "https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/0root-demo"
+  default     = "https://github.com/rizbuk/step.git"
 }
 
 variable "gitops_repo_revision" {

@@ -36,5 +36,5 @@ output "argocd_initial_admin_password_command" {
 }
 
 output "gitops_repo_url" {
-  value = aws_codecommit_repository.gitops.clone_url_http
+  value = var.gitops_repo_url
 }
