@@ -42,7 +42,7 @@ spec:
             - name: APP_NAME
               value: 0root-demo-app
             - name: APP_VERSION
-              value: "1.0.1"
+              value: "1.0.2"
           readinessProbe:
             httpGet:
               path: /readyz
