@@ -6,11 +6,9 @@ on:
       - main
     paths:
       - "app/**"
+      - "k8s/base/deployment.yaml"
       - ".github/workflows/docker-build-push.yml"
   workflow_dispatch:
-
-env:
-  APP_VERSION: "1.0.0" # Укажите нужную версию здесь
 
 permissions:
   contents: read
@@ -21,6 +19,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Extract version from k8s manifest
+        id: get_version
+        run: |
+          # Извлекаем значение image, заменяем двоеточие на пробел и берем последнее слово (тег)
+          VERSION=$(grep -oP 'image:\s*docker\.io/maks83/0root-demo-app:\K\S+' k8s/base/deployment.yaml)
+          echo "Parsed version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -37,7 +43,7 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/0root-demo-app
           tags: |
-            type=raw,value=${{ env.APP_VERSION }}
+            type=raw,value=${{ steps.get_version.outputs.version }}
             type=sha,prefix=sha-
 
       - name: Build and push
