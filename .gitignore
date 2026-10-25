@@ -3,6 +3,7 @@ terraform/*.tfstate
 terraform/*.tfstate.*
 terraform/tfplan*
 terraform/*.log
+terraform/.terraform.lock.hcl
 *.log
 .DS_Store
 
