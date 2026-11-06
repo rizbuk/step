@@ -25,7 +25,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send(
                 200,
                 {
-                    "status": "ok0root--------lalala",
+                    "status": "ok0rootPRIVET",
                     "app": APP_NAME,
                     "version": APP_VERSION,
                     "hostname": socket.gethostname(),
